@@ -165,7 +165,7 @@ def parse_author(dblp_path, save_path, save_to_csv=False):
 
 def parse_article(dblp_path, save_path, save_to_csv=False, include_key=False):
     type_name = ['article']
-    features = ['title', 'author', 'year', 'journal', 'pages']
+    features = ['title', 'author', 'year', 'journal', 'pages', 'volume', 'number', 'url', 'ee']
     info = parse_entity(dblp_path, save_path, type_name, features, save_to_csv=save_to_csv, include_key=include_key)
     log_msg('Total articles found: {}, articles contain all features: {}, articles contain part of features: {}'
             .format(info[0] + info[1], info[0], info[1]))
@@ -174,7 +174,7 @@ def parse_article(dblp_path, save_path, save_to_csv=False, include_key=False):
 
 def parse_inproceedings(dblp_path, save_path, save_to_csv=False, include_key=False):
     type_name = ["inproceedings"]
-    features = ['title', 'author', 'year', 'pages', 'booktitle']
+    features = ['title', 'author', 'year', 'pages', 'booktitle', 'ee', 'crossref', 'url']
     info = parse_entity(dblp_path, save_path, type_name, features, save_to_csv=save_to_csv, include_key=include_key)
     log_msg('Total inproceedings found: {}, inproceedings contain all features: {}, inproceedings contain part of '
             'features: {}'.format(info[0] + info[1], info[0], info[1]))
@@ -183,8 +183,7 @@ def parse_inproceedings(dblp_path, save_path, save_to_csv=False, include_key=Fal
 
 def parse_proceedings(dblp_path, save_path, save_to_csv=False, include_key=False):
     type_name = ["proceedings"]
-    features = ['title', 'editor', 'year', 'booktitle', 'series', 'publisher']
-    # Other features are 'volume','isbn' and 'url'.
+    features = ['title', 'editor', 'volume', 'year', 'isbn', 'booktitle', 'series', 'publisher', 'url']
     info = parse_entity(dblp_path, save_path, type_name, features, save_to_csv=save_to_csv, include_key=include_key)
     log_msg('Total proceedings found: {}, proceedings contain all features: {}, proceedings contain part of '
             'features: {}'.format(info[0] + info[1], info[0], info[1]))
@@ -209,6 +208,15 @@ def parse_publications(dblp_path, save_path, save_to_csv=False, include_key=Fals
     log_msg("Features information: {}".format(str(info[2])))
 
 
+def parse_www(dblp_path, save_path, save_to_csv=False, include_key=False):
+    type_name = ['www']
+    features = ['author', 'title', 'url', 'note']
+    info = parse_entity(dblp_path, save_path, type_name, features, save_to_csv=save_to_csv, include_key=include_key)
+    log_msg('Total www found: {}, www contain all features: {}, www contain part of '
+            'features: {}'.format(info[0] + info[1], info[0], info[1]))
+    log_msg("Features information: {}".format(str(info[2])))
+
+
 def main():
     dblp_path = 'dataset/dblp.xml'
     save_path = 'dataset/article.json'
@@ -218,7 +226,11 @@ def main():
     except IOError:
         log_msg("ERROR: Failed to load file \"{}\". Please check your XML and DTD files.".format(dblp_path))
         exit()
-    parse_article(dblp_path, save_path, save_to_csv=False)
+    parse_article(dblp_path, save_path, save_to_csv=False, include_key=True)
+    parse_inproceedings(dblp_path, 'dataset/inproceedings.json', save_to_csv=False, include_key=True)
+    parse_author(dblp_path, 'dataset/author.json', save_to_csv=False)
+    #parse_www(dblp_path, 'dataset/www.json', save_to_csv=False, include_key=True)
+    parse_proceedings(dblp_path, 'dataset/proceedings.json', save_to_csv=False, include_key=True)
 
 
 if __name__ == '__main__':
