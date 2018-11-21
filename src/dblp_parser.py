@@ -4,6 +4,8 @@ import csv
 import codecs
 import ujson
 import re
+from time import time
+
 
 # all of the element types in dblp
 all_elements = {"article", "inproceedings", "proceedings", "book", "incollection", "phdthesis", "mastersthesis", "www"}
@@ -16,6 +18,20 @@ all_features = {"address", "author", "booktitle", "cdrom", "chapter", "cite", "c
 def log_msg(message):
     """Produce a log with current time"""
     print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message)
+
+
+def output_log(filename):
+    with open(filename, 'w') as f:
+        f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start_time = time()
+        func(*args, **kwargs)
+        elapsed_time = time() - start_time
+        log_msg(f'Finished: elapsed time is {round(elapsed_time, 3)}[sec]')
+    return wrapper
 
 
 def context_iter(dblp_path):
@@ -111,12 +127,15 @@ def parse_entity(dblp_path, save_path, type_name, features=None, save_to_csv=Fal
     """Parse specific elements according to the given type name and features"""
     log_msg("PROCESS: Start parsing for {}...".format(str(type_name)))
     assert features is not None, "features must be assigned before parsing the dblp dataset"
-    results = []
+    # results = []
+    results = {}
     attrib_count, full_entity, part_entity = {}, 0, 0
     for _, elem in context_iter(dblp_path):
         if elem.tag in type_name:
+            # 'key'をキーにしてデータを保存
             attrib_values = extract_feature(elem, features, include_key)  # extract required features
-            results.append(attrib_values)  # add record to results array
+            results[elem.attrib['key']] = attrib_values
+            # results.append(attrib_values)  # add record to results array
             for key, value in attrib_values.items():
                 attrib_count[key] = attrib_count.get(key, 0) + len(value)
             cnt = sum([1 if len(x) > 0 else 0 for x in list(attrib_values.values())])
@@ -138,7 +157,7 @@ def parse_entity(dblp_path, save_path, type_name, features=None, save_to_csv=Fal
         f.close()
     else:  # default save to json file
         with codecs.open(save_path, mode='w', encoding='utf8', errors='ignore') as f:
-            ujson.dump(results, f)
+            ujson.dump(results, f, indent=2)
     return full_entity, part_entity, attrib_count
 
 
@@ -217,20 +236,22 @@ def parse_www(dblp_path, save_path, save_to_csv=False, include_key=False):
     log_msg("Features information: {}".format(str(info[2])))
 
 
+@timer
 def main():
     dblp_path = 'dataset/dblp.xml'
-    save_path = 'dataset/article.json'
+    log_path = 'dataset/_dblp_parser_log.txt'
     try:
         context_iter(dblp_path)
         log_msg("LOG: Successfully loaded \"{}\".".format(dblp_path))
     except IOError:
         log_msg("ERROR: Failed to load file \"{}\". Please check your XML and DTD files.".format(dblp_path))
         exit()
-    parse_article(dblp_path, save_path, save_to_csv=False, include_key=True)
-    parse_inproceedings(dblp_path, 'dataset/inproceedings.json', save_to_csv=False, include_key=True)
-    parse_author(dblp_path, 'dataset/author.json', save_to_csv=False)
-    #parse_www(dblp_path, 'dataset/www.json', save_to_csv=False, include_key=True)
-    parse_proceedings(dblp_path, 'dataset/proceedings.json', save_to_csv=False, include_key=True)
+    parse_article(dblp_path, 'dataset/article.json', save_to_csv=False)
+    parse_inproceedings(dblp_path, 'dataset/inproceedings.json', save_to_csv=False)
+    #parse_author(dblp_path, 'dataset/author.json', save_to_csv=False)
+    #parse_www(dblp_path, 'dataset/www.json', save_to_csv=False)
+    #parse_proceedings(dblp_path, 'dataset/proceedings.json', save_to_csv=False)
+    output_log(log_path)
 
 
 if __name__ == '__main__':
