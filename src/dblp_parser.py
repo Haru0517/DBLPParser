@@ -246,8 +246,8 @@ def main():
     except IOError:
         log_msg("ERROR: Failed to load file \"{}\". Please check your XML and DTD files.".format(dblp_path))
         exit()
-    parse_article(dblp_path, 'dataset/article.json', save_to_csv=False)
-    parse_inproceedings(dblp_path, 'dataset/inproceedings.json', save_to_csv=False)
+    parse_article(dblp_path, 'dataset/dblp_article.json', save_to_csv=False)
+    parse_inproceedings(dblp_path, 'dataset/dblp_inproceedings.json', save_to_csv=False)
     #parse_author(dblp_path, 'dataset/author.json', save_to_csv=False)
     #parse_www(dblp_path, 'dataset/www.json', save_to_csv=False)
     #parse_proceedings(dblp_path, 'dataset/proceedings.json', save_to_csv=False)
