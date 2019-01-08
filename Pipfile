@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 lxml = "*"
 ujson = "*"
+tqdm = "*"
+nltk = "*"
+matplotlib = "*"
 
 [dev-packages]
 

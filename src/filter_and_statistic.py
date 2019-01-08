@@ -144,8 +144,8 @@ def summarize(dataset):
 
 
 def main():
-    dataset = load_json("dataset/article.json")
-    results = filter_records(dataset, "dataset/article_tiny.json")
+    dataset = load_json("dataset/dblp_article.json")
+    results = filter_records(dataset, "dataset/dblp_article_tiny.json")
     summarize(results)
 
 
